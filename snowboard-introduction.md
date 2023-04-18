@@ -3,7 +3,6 @@
 - [Introduction](#introduction)
 - [Features](#features)
 - [Including the framework](#framework-script)
-- [Concepts](#concepts)
 
 ![image](https://github.com/wintercms/docs/blob/main/images/header-snowboard.png?raw=true) {.img-responsive .frame}
 

@@ -8,12 +8,16 @@
     - [Registering theme packages](#registering-themes)
 - [Mix configuration](#mix-configuration)
 - [Examples](#examples)
+    - [Tailwind CSS](#examples-tailwind)
+    - [Alpine JS](#examples-alpine)
+    - [Vue JS](#examples-vue)
 - [Commands](#commands)
     - [Install Node dependencies](#mix-install)
     - [Update Node dependencies](#mix-update)
     - [List registered Mix packages](#mix-list)
     - [Compile a Mix package](#mix-compile)
     - [Watch a Mix package](#mix-watch)
+    - [Run a package script](#mix-run)
 
 <a name="introduction"></a>
 ## Introduction
@@ -117,6 +121,7 @@ When the `winter.mix.js` file is evaluated, regardless of where you ran `mix:com
 
 Here are some examples of installing common frontend libraries for use with the asset compilation.
 
+<a name="examples-tailwind"></a>
 ### Tailwind CSS
 
 For themes that wish to use Tailwind CSS, include the `tailwindcss`, `postcss` and `autoprefixer` dependencies in your `package.json` file.
@@ -147,6 +152,118 @@ mix.postCss('assets/css/base.css', 'assets/css/theme.css', [
 In the example above, we have a base CSS file that contains the Tailwind styling - `assets/css/base.css` - that will compile to a final compiled CSS file in `assets/css/theme.css`.
 
 Your theme will now be ready for Tailwind CSS development.
+
+<a name="examples-alpine"></a>
+### Alpine JS
+
+For themes that wish to use Alpine JS, include the `alpinejs` dependency in your theme's `package.json` file.
+
+```bash
+# Inside the theme root folder
+npm install aplinejs
+```
+
+You will need to update your Mix assets by running `php artisan mix:update` from the project root folder after the installation is complete.
+
+Import Alpine into your theme script bundle (for example, stored at `theme/example/assets/js/scripts.js`), and initialize it like so:
+
+```js
+import Alpine from 'alpinejs'
+window.Alpine = Alpine
+Alpine.start()
+```
+
+The `window.Alpine = Alpine` is optional, but is nice to have for flexibility by making `Alpine` globally accessible via JavaScript, for situations like tinkering with Alpine from the devtools or using Alpine inline in your theme files.
+
+Then, update your `winter.mix.js` configuration file that will compile Alpine as needed:
+
+```js
+const mix = require('laravel-mix');
+mix.setPublicPath(__dirname);
+
+mix
+  // other mix commands
+  .js('assets/js/scripts.js', 'assets/js/app.js');
+```
+
+In the example above, we compile the theme script bundle that contains Alpine initialization - `assets/js/scripts.js` - into a final, compiled build at `assets/js/app.js`.
+
+Your theme will now be ready to use Alpine JS by simply including the build in your theme's HTML:
+
+```html
+<script src="{{ 'assets/js/app.js' | theme }}"></script>
+```
+
+<a name="examples-vue"></a>
+### Vue
+
+If you want to use [Vue 3](https://vuejs.org/) in your project, either in the backend or in a component or theme, you can follow these steps.
+
+First, define Vue as a dependency in your plugin's `package.json`:
+
+```
+    "name": "myauthor-myplugin",
+    "private": true,
+    "version": "1.0.0",
+    "dependencies": {
+        "vue": "^3.2.41"
+    }
+```
+
+Run `php artisan mix:install` to install Vue and the dependencies that Vue requires.
+
+Then, add a `winter.mix.js` configuration file to your plugin directory. This will build a specific entry point file, in this case `assets/src/js/myplugin.js` and create a built version of your Vue app as `assets/dist/js/myplugin.js`.
+
+```js
+const mix = require('laravel-mix');
+mix.setPublicPath(__dirname);
+mix
+    // compile javascript assets for plugin
+    .js('assets/src/js/myplugin.js', 'assets/dist/js').vue({ version: 3 })
+```
+
+Next you can create your Vue source files in your plugin's assets directory. Mix supports rendering of [single-file components](https://vuejs.org/guide/scaling-up/sfc.html), allowing you to define the template, scripting and styling all in one file.
+
+```js
+// assets/src/js/myplugin.js
+
+import { createApp } from 'vue'
+import Welcome from './components/Welcome'
+
+const myPlugin = createApp({})
+
+myPlugin.component('welcome', Welcome)
+
+myPlugin.mount('[data-vue-app="myPlugin"]')
+```
+
+```js
+// assets/src/js/components/Welcome.vue
+
+<template>
+    <h1>{{ title }}</h1>
+</template>
+
+<script>
+export default {
+    setup: () => ({
+        title: 'Vue 3 in Laravel'
+    })
+}
+</script>
+```
+
+Now if you comple your assets in the project root with `php artisan mix:compile`, Mix will create your compiled and built Vue component as a JS file.
+
+Next in the your controller's template file (eg. controllers/myvuecontroller/index.php) you can include the generated `myplugin.js` file, and render the content in the div with the `data-vue-app="myPlugin"` attribute:
+
+```html
+<div data-vue-app="myPlugin">
+  <welcome/>
+</div>
+
+<script src="/plugins/foo/bar/assets/dist/js/myplugin.js"></script>
+```
 
 <a name="commands"></a>
 ## Commands
@@ -219,3 +336,29 @@ php artisan mix:watch <package> [-f|--production] [-- <extra build options>]
 The `mix:watch` command is similar to the the `mix:compile` command, except that it remains active and watches for any changes made to files that would be affected by your compilation. When any changes are made, a compile is automatically executed. This is useful for development in allowing you to quickly make changes and review them in your browser.
 
 With this command, only one package can be provided and watched at any one time.
+
+<a name="mix-run"></a>
+### Run a package script
+
+```bash
+php artisan mix:run <package> <script> [-f|--production] [-- <extra script args>]
+```
+
+The `mix:run` command allows you to quickly run scripts defined in the `package.json` file of a Mix package.
+
+```js
+// package.json
+{
+    // ...
+    "scripts": {
+        "scriptName": "script to execute"
+    }
+    // ...
+}
+```
+
+This can be useful for running arbitrary scripts that augment the capabilities of your plugin or theme, such as executing unit tests, making customised builds and much more. Note that scripts will run with the working directory set to the root folder of the package, not the root folder of the entire project that the `artisan` command normally executes within.
+
+By default, all package scripts are run in "development" mode. If you wish to run a script in "production" mode, add the `-f` or `--production` flag to the command.
+
+If you wish to pass extra arguments or options to your script, you can add `--` to the end of the command. Any arguments or options added after the `--` argument are interpreted as arguments and options to be sent to the script itself.

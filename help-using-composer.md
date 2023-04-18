@@ -13,6 +13,7 @@
     - [Configuration files](#laravel-config-files)
     - [Aliases & service providers](#laravel-aliases-service-providers)
     - [Migrations & models](#laravel-migrations-models)
+- [Merging plugin Composer dependencies](#composer-merge)
 
 <a name="introduction"></a>
 ## Introduction
@@ -34,11 +35,11 @@ In order to use Composer with a Winter CMS instance that has been installed usin
 If you plan on submitting pull requests to the Winter CMS project via GitHub, or are actively developing a project based on Winter CMS and want to stay up to date with the absolute latest version, we recommend switching your composer dependencies to point to the `develop` branch where all the latest improvements and bug fixes take place. Doing this will allow you to catch any potential issues that may be introduced (as rare as they are) right when they happen and get them fixed while you're still actively working on your project instead of only discovering them several months down the road if they eventually make it into production.
 
 ```json
-"winter/storm": "dev-develop as 1.1.999",
-"winter/wn-system-module": "dev-develop as 1.1.999",
-"winter/wn-backend-module": "dev-develop as 1.1.999",
-"winter/wn-cms-module": "dev-develop as 1.1.999",
-"laravel/framework": "~6.0",
+"winter/storm": "dev-develop as 1.2.999",
+"winter/wn-system-module": "dev-develop as 1.2.999",
+"winter/wn-backend-module": "dev-develop as 1.2.999",
+"winter/wn-cms-module": "dev-develop as 1.2.999",
+"laravel/framework": "~9.0",
 ```
 
 > **NOTE:** Do not commit the changes to `composer.json`, as this file is handled by the Winter CMS maintainers.
@@ -241,7 +242,7 @@ Now the package configuration has been included natively in Winter CMS and the v
 <a name="laravel-aliases-service-providers"></a>
 ### Aliases & service providers
 
-By default, Winter CMS disables the loading of discovered packages through [Laravel's package discovery service](https://laravel.com/docs/6.x/packages#package-discovery), in order to allow packages used by plugins to be disabled if the plugin itself is disabled. Please note that packages defined in `app.providers` will still be loaded even if discovery is disabled.
+By default, Winter CMS disables the loading of discovered packages through [Laravel's package discovery service](https://laravel.com/docs/9.x/packages#package-discovery), in order to allow packages used by plugins to be disabled if the plugin itself is disabled. Please note that packages defined in `app.providers` will still be loaded even if discovery is disabled.
 
 > **NOTE:** It is possible to set `app.loadDiscoveredPackages` to `true` in the project configuration to enable automatic loading of these packages. This will result in packages being loaded, even if the plugin using them is disabled. This is **NOT RECOMMENDED.**
 
@@ -274,3 +275,74 @@ class Plugin extends PluginBase
 Laravel packages that interact with the database will often include their own database migrations and Eloquent models. Ideally you should duplicate these migrations and models to your plugin's directory and then rebase the provided Model classes to extend the base `\Winter\Storm\Database\Model` class instead of the base Laravel Eloquent model class to take advantage of the extended technology features found in Winter.
 
 You should also make an effort to rename the tables to prefix them with your plugin's author code and name. For example, a table with the name `posts` should be renamed to `winter_blog_posts`.
+
+<a name="composer-merge"></a>
+## Merging plugin Composer dependencies
+
+By default, Winter CMS includes the [Composer Merge plugin](https://github.com/wikimedia/composer-merge-plugin) with its Composer dependencies. This is a special Composer plugin that allows developers to include a `composer.json` file in plugins that they are actively developing, or do not wish to publish, and have any dependencies specified in their plugin's `composer.json` file also be included when running `composer install` or `composer update` on their project.
+
+Originally, this was set to include any plugin's `composer.json` file, but this was prone to conflicts and errors, so beginning with Winter 1.2, you must explicitly provide a list of `composer.json` files that you wish to merge in with your main `composer.json` file.
+
+You can edit the `include` section of the following block of code in your **main** `composer.json` file:
+
+```json
+"extra": {
+    "merge-plugin": {
+        "include": [
+            "plugins/myauthor/*/composer.json"
+        ],
+        "recurse": true,
+        "replace": false,
+        "merge-dev": false
+    }
+},
+```
+
+For example, if you want to include a single plugin's `composer.json`, you can specify a direct path to that plugin's `composer.json`:
+
+```json
+"extra": {
+    "merge-plugin": {
+        "include": [
+            "plugins/acme/blog/composer.json"
+        ],
+        "recurse": true,
+        "replace": false,
+        "merge-dev": false
+    }
+},
+```
+
+Or if you have multiple plugins, you can specify multiple paths:
+
+```json
+"extra": {
+    "merge-plugin": {
+        "include": [
+            "plugins/acme/blog/composer.json",
+            "plugins/acme/forum/composer.json",
+            "plugins/acme/events/composer.json"
+        ],
+        "recurse": true,
+        "replace": false,
+        "merge-dev": false
+    }
+},
+```
+
+If you wish to include a whole directory of custom plugins, you can specify a wildcard:
+
+```json
+"extra": {
+    "merge-plugin": {
+        "include": [
+            "plugins/acme/*/composer.json"
+        ],
+        "recurse": true,
+        "replace": false,
+        "merge-dev": false
+    }
+},
+```
+
+To prevent conflicts, you must not include any plugins that are brought in as a dependency of the project in either the `require` or `require-dev` blocks of your project's `composer.json` file. For example, if you have previously used `composer require acme/blog` to add that plugin to your `require` block, you should not include it in the Merge plugin's `include` block, as this effectively includes the plugin twice and may cause Composer to see it as a conflict.

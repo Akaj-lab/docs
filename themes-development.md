@@ -113,6 +113,8 @@ form:
 });
 ```
 
+> **NOTE:** When using a `fileupload` field in your theme, Winter will automatically add the field to an `attachOne` relationship. If you want to use multiple file uploads for a field, add the `multiple: true` option to the field definition. This will instead add the field to an `attachMany` relationship.
+
 The value can then be accessed inside any of the Theme templates using the [default page variable](../markup#default-variables) called `this.theme`.
 
 ```twig
@@ -215,3 +217,4 @@ The **lang.php** file should define and return an array of any depth, for exampl
 ```
 
 You are then able to reference the keys using `themes.theme-code::lang.key`. In the above example, the full language key you would use to reference the "website_name" localization key would be `themes.acme::lang.options.website_name`
+

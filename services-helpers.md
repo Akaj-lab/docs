@@ -16,7 +16,8 @@ Winter includes a variety of "helper" PHP functions. Many of these functions are
 ### Arrays
 
 <div class="collection-method-list" markdown="1">
-[Laravel `Arr::*()` Helpers](https://laravel.com/docs/6.x/helpers#available-methods)
+
+[Laravel `Arr::*()` Helpers](https://laravel.com/docs/9.x/helpers#arrays-and-objects-method-list)
 [array_add](#method-array-add)
 [array_divide](#method-array-divide)
 [array_dot](#method-array-dot)
@@ -35,11 +36,13 @@ Winter includes a variety of "helper" PHP functions. Many of these functions are
 [array_where](#method-array-where)
 [head](#method-head)
 [last](#method-last)
+
 </div>
 
 ### Paths
 
 <div class="collection-method-list" markdown="1">
+
 [Path Symbols](#path-symbols)
 [app_path](#method-app-path)
 [base_path](#method-base-path)
@@ -52,12 +55,14 @@ Winter includes a variety of "helper" PHP functions. Many of these functions are
 [temp_path](#method-temp-path)
 [themes_path](#method-themes-path)
 [uploads_path](#method-uploads-path)
+
 </div>
 
 ### Strings
 
 <div class="collection-method-list" markdown="1">
-[Laravel `Str::*()` Helpers](https://laravel.com/docs/6.x/helpers#available-methods)
+
+[Laravel `Str::*()` Helpers](https://laravel.com/docs/9.x/helpers#strings-method-list)
 [camel_case](#method-camel-case)
 [class_basename](#method-class-basename)
 [e](#method-e)
@@ -75,11 +80,21 @@ Winter includes a variety of "helper" PHP functions. Many of these functions are
 [studly_case](#method-studly-case)
 [trans](#method-trans)
 [trans_choice](#method-trans-choice)
+
+</div>
+
+### SVG
+
+<div class="collection-method-list" markdown="1">
+
+[extract](#method-svg-extract)
+
 </div>
 
 ### Miscellaneous
 
 <div class="collection-method-list" markdown="1">
+
 [asset](#method-asset)
 [config](#method-config)
 [dd](#method-dd)
@@ -95,6 +110,7 @@ Winter includes a variety of "helper" PHP functions. Many of these functions are
 [trace_log](#method-trace-log)
 [trace_sql](#method-trace-sql)
 [url](#method-url)
+
 </div>
 
 <style>
@@ -415,8 +431,9 @@ These symbols are supported for creating dynamic paths:
 
 Symbol | Description
 ------------- | -------------
-`$` | Relative to the plugins directory
 `~` | Relative to the application directory
+`$` | Relative to the plugins directory
+`#` | Relative to the themes directory
 
 <a name="method-app-path"></a>
 #### `app_path()` {#collection-method}
@@ -761,6 +778,28 @@ The `trans_choice` function translates the given language line with inflection:
 
 ```php
 $value = trans_choice('foo.bar', $count);
+```
+
+<a name="svg-utility"></a>
+## SVG
+
+Winter includes a simple SVG utility that allows you to extract sanitized SVG markup from a given path. This can be
+useful for sanitization, or for using SVG markup directly in your themes.
+
+<a name="method-svg-extract"></a>
+#### `Svg::extract()` {#collection-method}
+
+The `extract` method allows you to extract the sanitized SVG markup in a given path. Sanitization prevents the use of
+JavaScript, remote sources and CSS imports, stopping common attack vectors within SVG code.
+
+```php
+$svg = Svg::extract('/path/to/image.svg');
+```
+
+By default, the output SVG markup is minified. The second parameter allows you to disable this by setting it to `false`.
+
+```php
+$unminifiedSvg = Svg::extract('/path/to/image.svg', false);
 ```
 
 <a name="miscellaneous"></a>

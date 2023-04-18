@@ -341,9 +341,14 @@ There are various native field types that can be used for the **type** setting. 
 
 <style>
     .collection-method-list {
-        column-count: 3; -moz-column-count: 3; -webkit-column-count: 3;
+        column-count: 2; -moz-column-count: 2; -webkit-column-count: 2;
         column-gap: 2em; -moz-column-gap: 2em; -webkit-column-gap: 2em;
     }
+@media (min-width: 576px) {
+    .collection-method-list {
+        column-count: 3; -moz-column-count: 3; -webkit-column-count: 3;
+    }
+}
 
     .collection-method-list a {
         display: block;
@@ -351,107 +356,73 @@ There are various native field types that can be used for the **type** setting. 
 </style>
 
 <div class="content-list collection-method-list" markdown="1">
-- [Text](#field-text)
-- [Number](#field-number)
-- [Password](#field-password)
-- [Email](#field-email)
-- [Textarea](#field-textarea)
-- [Dropdown](#field-dropdown)
-- [Radio List](#field-radio)
 - [Balloon Selector](#field-balloon)
 - [Checkbox](#field-checkbox)
 - [Checkbox List](#field-checkboxlist)
-- [Switch](#field-switch)
-- [Section](#field-section)
-- [Partial](#field-partial)
+- [Dropdown](#field-dropdown)
+- [Email](#field-email)
 - [Hint](#field-hint)
+- [Number](#field-number)
+- [Partial](#field-partial)
+- [Password](#field-password)
+- [Radio List](#field-radio)
+- [Range](#field-range)
+- [Section](#field-section)
+- [Switch](#field-switch)
+- [Text](#field-text)
+- [Textarea](#field-textarea)
 - [Widget](#field-widget)
 </div>
 
-<a name="field-text"></a>
-### Text
+<a name="field-balloon"></a>
+### Balloon Selector
 
-`text` - renders a single line text box. This is the default type used if none is specified.
-
-```yaml
-blog_title:
-    label: Blog Title
-    type: text
-```
-
-<a name="field-number"></a>
-### Number
-
-`number` - renders a single line text box that takes numbers only.
+`balloon-selector` - renders a list, where only one item can be selected at a time.
 
 ```yaml
-your_age:
-    label: Your Age
-    type: number
-    step: 1  # defaults to 'any'
-    min: 1   # defaults to not present
-    max: 100 # defaults to not present
+gender:
+    label: Gender
+    type: balloon-selector
+    default: female
+    options:
+        female: Female
+        male: Male
 ```
 
-If you would like to validate this field server-side on save to ensure that it is numeric, please use the `$rules` property on your model, like so:
+Balloon selectors support the same methods for defining the options as the [dropdown field type](#field-dropdown).
 
-```php
-/**
- * @var array Validation rules
- */
-public $rules = [
-    'your_age' => 'numeric',
-];
-```
+<a name="field-checkbox"></a>
+### Checkbox
 
-For more information on model validation, please visit [the documentation page](../services/validation#rule-numeric).
-
-<a name="field-password"></a>
-### Password
-
-`password ` - renders a single line password field.
+`checkbox` - renders a single checkbox.
 
 ```yaml
-user_password:
-    label: Password
-    type: password
+show_content:
+    label: Display content
+    type: checkbox
+    default: true
 ```
 
-<a name="field-email"></a>
-### Email
+<a name="field-checkboxlist"></a>
+### Checkbox List
 
-`email` - renders a single line text box with the type of `email`, triggering an email-specialised keyboard in mobile browsers.
+`checkboxlist` - renders a list of checkboxes.
 
 ```yaml
-user_email:
-    label: Email Address
-    type: email
+permissions:
+    label: Permissions
+    type: checkboxlist
+    # set to true to explicitly enable the "Select All", "Select None" options
+    # on lists that have <=10 items (>10 automatically enables it)
+    quickselect: true
+    default: open_account
+    options:
+        open_account: Open account
+        close_account: Close account
+        modify_account: Modify account
 ```
 
-If you would like to validate this field on save to ensure that it is a properly-formatted email address, please use the `$rules` property on your model, like so:
-
-```php
-/**
- * @var array Validation rules
- */
-public $rules = [
-    'user_email' => 'email',
-];
-```
-
-For more information on model validation, please visit [the documentation page](../services/validation#rule-email).
-
-<a name="field-textarea"></a>
-### Textarea
-
-`textarea` - renders a multiline text box. A size can also be specified with possible values: `tiny`, `small`, `large`, `huge`, `giant`.
-
-```yaml
-blog_contents:
-    label: Contents
-    type: textarea
-    size: large
-```
+Checkbox lists support the same methods for defining the options as the [dropdown field type](#field-dropdown) and also support secondary descriptions, found in the [radio field type](#field-radio). Options can be displayed inline with each other instead of in separate rows by specifying `cssClass: 'inline-options'` on the checkboxlist field config.
 
 <a name="field-dropdown"></a>
 ### Dropdown
@@ -468,9 +439,9 @@ status_type:
     type: dropdown
     default: published
     options:
-        draft
-        published
-        archived
+        - draft
+        - published
+        - archived
 ```
 
 (key / value):
@@ -613,6 +584,92 @@ status:
     showSearch: false
 ```
 
+<a name="field-email"></a>
+### Email
+
+`email` - renders a single line text box with the type of `email`, triggering an email-specialised keyboard in mobile browsers.
+
+```yaml
+user_email:
+    label: Email Address
+    type: email
+```
+
+If you would like to validate this field on save to ensure that it is a properly-formatted email address, please use the `$rules` property on your model, like so:
+
+```php
+/**
+ * @var array Validation rules
+ */
+public $rules = [
+    'user_email' => 'email',
+];
+```
+
+For more information on model validation, please visit [the documentation page](../services/validation#rule-email).
+
+<a name="field-hint"></a>
+### Hint
+
+`hint` - identical to a `partial` field but renders inside a hint container that can be hidden by the user.
+
+```yaml
+content:
+    type: hint
+    path: content_field
+```
+
+<a name="field-number"></a>
+### Number
+
+`number` - renders a single line text box that takes numbers only.
+
+```yaml
+your_age:
+    label: Your Age
+    type: number
+    step: 1  # defaults to 'any'
+    min: 1   # defaults to not present
+    max: 100 # defaults to not present
+```
+
+If you would like to validate this field server-side on save to ensure that it is numeric, please use the `$rules` property on your model, like so:
+
+```php
+/**
+ * @var array Validation rules
+ */
+public $rules = [
+    'your_age' => 'numeric',
+];
+```
+
+For more information on model validation, please visit [the documentation page](../services/validation#rule-numeric).
+
+<a name="field-partial"></a>
+### Partial
+
+`partial` - renders a partial, the `path` value can refer to a partial view file otherwise the field name is used as the partial name. Inside the partial these variables are available: `$value` is the default field value, `$model` is the model used for the field and `$field` is the configured class object `Backend\Classes\FormField`.
+
+```yaml
+content:
+    type: partial
+    path: $/acme/blog/models/comments/_content_field.htm
+```
+
+>**NOTE:** If your partial field is meant only for display and will not be providing a value to the server to be stored then it is best practice to prefix the field name with an underscore (`_`) [to prevent the  FormController` behavior from attempting to process it](#prevent-field-submission)
+
+<a name="field-password"></a>
+### Password
+
+`password ` - renders a single line password field. See also [`sensitive`](#widget-sensitive), for sensitive data that should be able to be revealed on request.
+
+```yaml
+user_password:
+    label: Password
+    type: password
+```
+
 <a name="field-radio"></a>
 ### Radio List
 
@@ -643,55 +700,31 @@ security_level:
 
 Radio lists support the same methods for defining the options as the [dropdown field type](#field-dropdown). For radio lists the method could return either the simple array: **key => value** or an array of arrays for providing the descriptions: **key => [label, description]**. Options can be displayed inline with each other instead of in separate rows by specifying `cssClass: 'inline-options'` on the radio field config.
 
-<a name="field-balloon"></a>
-### Balloon Selector
+<a name="field-range"></a>
+### Range
 
-`balloon-selector` - renders a list, where only one item can be selected at a time.
-
-```yaml
-gender:
-    label: Gender
-    type: balloon-selector
-    default: female
-    options:
-        female: Female
-        male: Male
-```
-
-Balloon selectors support the same methods for defining the options as the [dropdown field type](#field-dropdown).
-
-<a name="field-checkbox"></a>
-### Checkbox
-
-`checkbox` - renders a single checkbox.
+`range` - renders a slider that takes numbers only.
 
 ```yaml
-show_content:
-    label: Display content
-    type: checkbox
-    default: true
+your_age:
+    label: Progress
+    type: range
+    step: 1  # defaults to 1
+    min: 0   # defaults to 0
+    max: 100 # defaults to 100
 ```
 
-<a name="field-checkboxlist"></a>
-### Checkbox List
+<a name="field-section"></a>
+### Section
 
-`checkboxlist` - renders a list of checkboxes.
+`section` - renders a section heading and subheading. The `label` and `comment` values are optional and contain the content for the heading and subheading.
 
 ```yaml
-permissions:
-    label: Permissions
-    type: checkboxlist
-    # set to true to explicitly enable the "Select All", "Select None" options
-    # on lists that have <=10 items (>10 automatically enables it)
-    quickselect: true
-    default: open_account
-    options:
-        open_account: Open account
-        close_account: Close account
-        modify_account: Modify account
+user_details_section:
+    label: User details
+    type: section
+    comment: This section contains details about the user.
 ```
-
-Checkbox lists support the same methods for defining the options as the [dropdown field type](#field-dropdown) and also support secondary descriptions, found in the [radio field type](#field-radio). Options can be displayed inline with each other instead of in separate rows by specifying `cssClass: 'inline-options'` on the checkboxlist field config.
 
 <a name="field-switch"></a>
 ### Switch
@@ -707,40 +740,27 @@ show_content:
     off: myauthor.myplugin::lang.models.mymodel.show_content.off
 ```
 
-<a name="field-section"></a>
-### Section
+<a name="field-text"></a>
+### Text
 
-`section` - renders a section heading and subheading. The `label` and `comment` values are optional and contain the content for the heading and subheading.
+`text` - renders a single line text box. This is the default type used if none is specified.
 
 ```yaml
-user_details_section:
-    label: User details
-    type: section
-    comment: This section contains details about the user.
+blog_title:
+    label: Blog Title
+    type: text
 ```
 
-<a name="field-partial"></a>
-### Partial
+<a name="field-textarea"></a>
+### Textarea
 
-`partial` - renders a partial, the `path` value can refer to a partial view file otherwise the field name is used as the partial name. Inside the partial these variables are available: `$value` is the default field value, `$model` is the model used for the field and `$field` is the configured class object `Backend\Classes\FormField`.
-
-```yaml
-content:
-    type: partial
-    path: $/acme/blog/models/comments/_content_field.htm
-```
-
->**NOTE:** If your partial field is meant only for display and will not be providing a value to the server to be stored then it is best practice to prefix the field name with an underscore (`_`) [to prevent the  FormController` behavior from attempting to process it](#prevent-field-submission)
-
-<a name="field-hint"></a>
-### Hint
-
-`hint` - identical to a `partial` field but renders inside a hint container that can be hidden by the user.
+`textarea` - renders a multiline text box. A size can also be specified with possible values: `tiny`, `small`, `large`, `huge`, `giant`.
 
 ```yaml
-content:
-    type: hint
-    path: content_field
+blog_contents:
+    label: Contents
+    type: textarea
+    size: large
 ```
 
 <a name="field-widget"></a>
@@ -765,6 +785,7 @@ There are various form widgets included as standard, although it is common for p
 - [Data table](#widget-datatable)
 - [Date picker](#widget-datepicker)
 - [File upload](#widget-fileupload)
+- [Icon picker](#widget-iconpicker)
 - [Markdown editor](#widget-markdowneditor)
 - [Media finder](#widget-mediafinder)
 - [Nested Form](#widget-nestedform)
@@ -1042,6 +1063,50 @@ Option | Description
 
 > **NOTE:** Unlike the [Media Finder FormWidget](#widget-mediafinder), the File Upload FormWidget uses [database file attachments](../database/attachments); so the field name must match a valid `attachOne` or `attachMany` relationship on the Model associated with the Form. **IMPORTANT:** Having a database column with the name used by this field type (i.e. a database column with the name of an existing `attachOne` or `attachMany` relationship) **will** cause this FormWidget to break. Use database columns with the Media Finder FormWidget and file attachment relationships with the File Upload FormWidget.
 
+<a name="widget-iconpicker"></a>
+### Icon Picker
+
+`iconpicker` - renders an icon picker that is by default powered by the Font Awesome icons included by WinterCMS.
+
+```yaml
+icon:
+    label: 'Icon'
+    type: 'iconpicker'
+    default: 'far icon-address-book'
+    libraries: ~/modules/backend/formwidgets/iconpicker/meta/libraries.yaml
+```
+
+<style>
+    .attributes-table-precessor + table td:first-child,
+    .attributes-table-precessor + table td:first-child > * { white-space: nowrap; }
+</style>
+<div class="attributes-table-precessor"></div>
+
+Option | Description
+------------- | -------------
+`default` | the default desired icon, e.g `far icon-address-book`, optional.
+`libraries` | the font libraries, in file or array format, optional. Default: `~/modules/backend/formwidgets/iconpicker/meta/libraries.yaml` which includes the Font Awesome icons.
+
+Alternatively, you may populate the `libraries` property with a user defined array of libraries (in the below example `far`) with specific icons.
+
+```yaml
+icon:
+    label: 'Icon'
+    type: 'iconpicker'
+    default: 'far icon-address-book'
+    libraries:
+        -
+            id: 'far'
+            title: "Font Awesome Regular"
+            prefix: "far icon-"
+            listicon: "far icon-circle"
+            icons:
+                - "far icon-address-book"
+                - "far icon-address-card"
+```
+
+> **NOTE:** If no `default` is provided, the input will remain empty, while the icon picker, once loaded, will focus on the first available icon.
+
 <a name="widget-markdowneditor"></a>
 ### Markdown editor
 
@@ -1088,7 +1153,7 @@ Option | Description
 <a name="widget-nestedform"></a>
 ### Nested Form
 
-`nestedform` - renders a nested form as the contents of this field, returns data as an array of the fields contained.
+`nestedform` - renders a nested form as the contents of this field and returns the form data as an array.
 
 > **NOTE:** In order to use this with a model, the field should be defined as a `jsonable` attribute, or as another attribute that can handle storing arrayed data.
 
@@ -1125,12 +1190,12 @@ content:
                 mode: image
 ```
 
-A nested form supports the same syntax as a form itself, including tabs and secondaryTabs. The jsonsable attribute, has the structure of your form definition. It's even possible to use nested forms inside a nested form.
+A nested form provides a way of collating reusable fields and making them available in multiple forms. A nested form supports the same syntax as a normal form, including tabs and secondary tabs, and outside fields. The given field name for the nested form will contain the entire structure and values of your nested form as a JSON array. It's even possible to use nested forms inside a nested form.
 
 Option | Description
 ------------- | -------------
-`form`  | same as in [form definition](#form-fields)
-`usePanelStyles` | defines if a panel like look is applied or not (defaults `true`)
+`form`  | contains the [form definition](#form-fields)
+`usePanelStyles` | defines if the nested form should be wrapped with a panel container (defaults `true`)
 
 <a name="widget-recordfinder"></a>
 ### Record finder
@@ -1247,7 +1312,7 @@ Option | Description
 ------------- | -------------
 `form` | a reference to form field definition file, see [backend form fields](#form-fields). Inline fields can also be used.
 `prompt` | text to display for the create button. Default: `Add new item`.
-`titleFrom` | name of field within items to use as the title for the collapsed item.
+`titleFrom` | the name of the field to use as the title for an item. This will show the value of the field as a title when an item is collapsed in a repeater. Please note that only text fields and dropdown fields are supported. Does not work in group mode.
 `minItems` | minimum items required. Pre-displays those items when not using groups. For example if you set **'minItems: 1'** the first row will be displayed and not hidden.
 `maxItems` | maximum number of items to allow within the repeater.
 `groups` | references a group of form fields placing the repeater in group mode (see below). An inline definition can also be used.
